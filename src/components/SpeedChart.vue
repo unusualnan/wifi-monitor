@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed } from 'vue'
+import { computed, ref, watch } from 'vue'
 import { use } from 'echarts/core'
 import { CanvasRenderer } from 'echarts/renderers'
 import { LineChart } from 'echarts/charts'
@@ -7,21 +7,21 @@ import {
   GridComponent,
   TooltipComponent,
   LegendComponent,
+  DataZoomComponent,
 } from 'echarts/components'
 import VChart from 'vue-echarts'
+import type { SpeedRecord } from '@/composables/useSpeedData'
 
-use([CanvasRenderer, LineChart, GridComponent, TooltipComponent, LegendComponent])
-
-interface SpeedRecord {
-  ts: string
-  download: number
-  upload: number
-}
+use([CanvasRenderer, LineChart, GridComponent, TooltipComponent, LegendComponent, DataZoomComponent])
 
 const props = defineProps<{
   records: SpeedRecord[]
   loading: boolean
+  autoRefresh: boolean
 }>()
+
+const chartRef = ref<InstanceType<typeof VChart> | null>(null)
+const userZooming = ref(false)
 
 const option = computed(() => {
   if (props.records.length === 0) {
@@ -53,7 +53,7 @@ const option = computed(() => {
     grid: {
       left: '3%',
       right: '4%',
-      bottom: '3%',
+      bottom: '12%',
       containLabel: true,
     },
     xAxis: {
@@ -76,6 +76,20 @@ const option = computed(() => {
       type: 'value',
       name: 'Mbps',
     },
+    dataZoom: [
+      {
+        type: 'inside',
+        start: props.records.length > 20 ? Math.max(0, 100 - (20 / props.records.length) * 100) : 0,
+        end: 100,
+      },
+      {
+        type: 'slider',
+        start: props.records.length > 20 ? Math.max(0, 100 - (20 / props.records.length) * 100) : 0,
+        end: 100,
+        height: 20,
+        bottom: 0,
+      },
+    ],
     series: [
       {
         name: '下载',
@@ -94,16 +108,43 @@ const option = computed(() => {
     ],
   }
 })
+
+watch(
+  () => props.records.length,
+  () => {
+    if (props.autoRefresh && !userZooming.value && chartRef.value) {
+      const chart = chartRef.value
+      chart.dispatchAction({
+        type: 'dataZoom',
+        start: props.records.length > 20 ? Math.max(0, 100 - (20 / props.records.length) * 100) : 0,
+        end: 100,
+      })
+    }
+  },
+)
+
+function onDataZoom() {
+  userZooming.value = true
+}
+
+function onDataZoomEnd() {
+  setTimeout(() => {
+    userZooming.value = false
+  }, 3000)
+}
 </script>
 
 <template>
   <div class="speed-chart">
     <VChart
       v-if="records.length > 0 || loading"
+      ref="chartRef"
       :option="option"
       :loading="loading"
       autoresize
       class="chart"
+      @datazoom="onDataZoom"
+      @datazoomend="onDataZoomEnd"
     />
     <div v-else class="empty">暂无数据</div>
   </div>

@@ -32,4 +32,4 @@
 ## 6. Future Work
 
 - [x] 6.1 移动端适配：SpeedCard 窄屏纵向排列、图表高度自适应（`min(400px, 50vw)`）、X 轴标签自适应旋转
-- [ ] 6.2 实时滚动时间轴：类似 Grafana 的 streaming chart，新数据到来时图表自动向左平滑移动，而非重绘整个时间轴（需要 ECharts `appendData` 或 `dataZoom` 配合 `setOption` 动态更新，中等难度）。需要增加：开启/关闭自动刷新的开关、刷新间隔选择（如 10s/30s/60s）
+- [x] 6.2 实时滚动时间轴：类似 Grafana 的 streaming chart，新数据到来时图表自动向左平滑移动，而非重绘整个时间轴（需要 ECharts `appendData` 或 `dataZoom` 配合 `setOption` 动态更新，中等难度）。需要增加：开启/关闭自动刷新的开关、刷新间隔选择（如 10s/30s/60s）
