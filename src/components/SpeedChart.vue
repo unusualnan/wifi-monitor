@@ -69,6 +69,7 @@ const option = computed(() => {
       axisLabel: {
         rotate: 30,
         fontSize: 10,
+        hideOverlap: true,
       },
     },
     yAxis: {
@@ -102,7 +103,7 @@ const option = computed(() => {
       :option="option"
       :loading="loading"
       autoresize
-      style="height: 400px"
+      class="chart"
     />
     <div v-else class="empty">暂无数据</div>
   </div>
@@ -113,6 +114,16 @@ const option = computed(() => {
   background: var(--color-background-soft);
   border-radius: 8px;
   padding: 1rem;
+}
+
+.chart {
+  height: 400px;
+}
+
+@media (max-width: 480px) {
+  .chart {
+    height: min(400px, 50vw);
+  }
 }
 
 .empty {

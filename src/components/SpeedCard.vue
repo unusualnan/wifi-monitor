@@ -52,6 +52,13 @@ function formatTime(iso: string | null): string {
   gap: 3rem;
 }
 
+@media (max-width: 480px) {
+  .speed-row {
+    flex-direction: column;
+    gap: 1.5rem;
+  }
+}
+
 .speed-item {
   display: flex;
   flex-direction: column;
