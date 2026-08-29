@@ -61,6 +61,12 @@ async function handleHistory(request: Request, db: D1Database) {
 	return json({ records: results })
 }
 
+async function handleScheduled(env: Env) {
+	const retentionDays = Number(env.RETENTION_DAYS) || 30
+	const cutoff = new Date(Date.now() - retentionDays * 86400000).toISOString()
+	await env.DB.prepare('DELETE FROM speed_log WHERE ts < ?').bind(cutoff).run()
+}
+
 export default {
 	async fetch(request, env) {
 		const url = new URL(request.url)
@@ -82,5 +88,9 @@ export default {
 		}
 
 		return new Response(null, { status: 404 })
+	},
+
+	async scheduled(event, env) {
+		await handleScheduled(env)
 	},
 } satisfies ExportedHandler<Env>
