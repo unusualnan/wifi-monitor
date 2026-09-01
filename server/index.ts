@@ -1,4 +1,5 @@
 import { AutoRouter, cors, json } from 'itty-router'
+import type { SpeedRecord, LatestSpeed } from '@/shared/types'
 
 const { preflight, corsify } = cors()
 
@@ -47,7 +48,7 @@ async function handleHistory(request: Request, env: Env) {
   const { results } = await env.DB
     .prepare('SELECT ts, download, upload FROM speed_log WHERE ts >= ? ORDER BY ts ASC')
     .bind(since)
-    .all<{ ts: string; download: number; upload: number }>()
+    .all<SpeedRecord>()
 
   return json({ records: results })
 }
