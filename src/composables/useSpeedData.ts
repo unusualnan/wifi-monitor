@@ -1,29 +1,12 @@
-import { ref, watch, onMounted, onUnmounted } from 'vue'
+import { ref, onMounted, onUnmounted } from 'vue'
 import type { SpeedRecord, LatestSpeed } from '@/shared/types'
+import { useAutoRefresh } from './useAutoRefresh'
 
 export function useSpeedData() {
   const latest = ref<LatestSpeed>({ ts: null, download: null, upload: null })
   const history = ref<SpeedRecord[]>([])
   const loading = ref(true)
   const error = ref<string | null>(null)
-  const autoRefresh = ref(true)
-  const refreshInterval = ref(30)
-
-  let timer: ReturnType<typeof setInterval> | null = null
-
-  function clearTimer() {
-    if (timer) {
-      clearInterval(timer)
-      timer = null
-    }
-  }
-
-  function startTimer() {
-    clearTimer()
-    if (autoRefresh.value && refreshInterval.value > 0) {
-      timer = setInterval(fetchLatest, refreshInterval.value * 1000)
-    }
-  }
 
   async function fetchLatest() {
     try {
@@ -62,14 +45,14 @@ export function useSpeedData() {
     await Promise.all([fetchLatest(), fetchHistory()])
   }
 
-  watch([autoRefresh, refreshInterval], startTimer)
+  const { autoRefresh, refreshInterval, start, stop } = useAutoRefresh(fetchLatest)
 
   onMounted(() => {
     refresh()
-    startTimer()
+    start()
   })
 
-  onUnmounted(clearTimer)
+  onUnmounted(stop)
 
   return { latest, history, loading, error, refresh, fetchHistory, autoRefresh, refreshInterval }
 }
