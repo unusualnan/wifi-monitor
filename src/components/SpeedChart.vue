@@ -10,7 +10,7 @@ import {
   DataZoomComponent,
 } from 'echarts/components'
 import VChart from 'vue-echarts'
-import type { SpeedRecord } from '@/composables/useSpeedData'
+import type { SpeedRecord } from '@/shared/types'
 
 use([CanvasRenderer, LineChart, GridComponent, TooltipComponent, LegendComponent, DataZoomComponent])
 
