@@ -1,17 +1,5 @@
 import { ref, watch, onMounted, onUnmounted } from 'vue'
-
-export interface SpeedRecord {
-  ts: string
-  download: number
-  upload: number
-}
-
-interface LatestSpeed {
-  ts: string | null
-  download: number | null
-  upload: number | null
-  device?: string
-}
+import type { SpeedRecord, LatestSpeed } from '@/shared/types'
 
 export function useSpeedData() {
   const latest = ref<LatestSpeed>({ ts: null, download: null, upload: null })
