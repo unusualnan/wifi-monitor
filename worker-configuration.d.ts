@@ -3,6 +3,7 @@
 // Runtime types generated with workerd@1.20260825.1 2026-08-25 
 interface __BaseEnv_Env {
 	DB: D1Database;
+	SETTINGS_KV: KVNamespace;
 	RETENTION_DAYS: "30";
 }
 declare namespace Cloudflare {

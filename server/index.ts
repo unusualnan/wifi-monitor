@@ -1,5 +1,6 @@
 import { AutoRouter, cors, json } from 'itty-router'
-import type { SpeedRecord, LatestSpeed } from '@/shared/types'
+import type { SpeedRecord, LatestSpeed, AppSettings } from '@/shared/types'
+import { DEFAULT_SETTINGS } from '@/shared/types'
 
 const { preflight, corsify } = cors()
 
@@ -59,6 +60,24 @@ async function handleScheduled(env: Env) {
   await env.DB.prepare('DELETE FROM speed_log WHERE ts < ?').bind(cutoff).run()
 }
 
+const SETTINGS_KEY = 'settings'
+
+async function handleGetSettings(request: Request, env: Env) {
+  const stored = await env.SETTINGS_KV.get<AppSettings>(SETTINGS_KEY, 'json')
+  return json(stored ?? DEFAULT_SETTINGS)
+}
+
+async function handlePutSettings(request: Request, env: Env) {
+  const body = await request.json<Partial<AppSettings>>()
+  const current = await env.SETTINGS_KV.get<AppSettings>(SETTINGS_KEY, 'json') ?? DEFAULT_SETTINGS
+  const updated: AppSettings = {
+    download_threshold_mbps: body.download_threshold_mbps ?? current.download_threshold_mbps,
+    poll_interval: body.poll_interval ?? current.poll_interval,
+  }
+  await env.SETTINGS_KV.put(SETTINGS_KEY, JSON.stringify(updated))
+  return json(updated)
+}
+
 const router = AutoRouter({
   before: [preflight],
   finally: [corsify],
@@ -68,6 +87,8 @@ router
   .post('/api/upload', handleUpload)
   .get('/api/latest', handleLatest)
   .get('/api/history', handleHistory)
+  .get('/api/settings', handleGetSettings)
+  .put('/api/settings', handlePutSettings)
 
 export default {
   ...router,

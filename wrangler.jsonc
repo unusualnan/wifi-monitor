@@ -15,7 +15,9 @@
 	},
 	"upload_source_maps": true,
 	"triggers": {
-		"crons": ["0 3 * * *"]
+		"crons": [
+			"0 3 * * *"
+		]
 	},
 	"vars": {
 		"RETENTION_DAYS": "30"
@@ -25,6 +27,12 @@
 			"binding": "DB",
 			"database_name": "wifi-monitor-db",
 			"database_id": "a751a3a3-ea27-4af6-9091-892db926fd0e"
+		}
+	],
+	"kv_namespaces": [
+		{
+			"binding": "SETTINGS_KV",
+			"id": "945cd377e36e40e6a4cee402d0111c61"
 		}
 	],
 	/**

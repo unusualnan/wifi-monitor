@@ -1,8 +1,10 @@
 <script setup lang="ts">
 import { useSpeedData } from '@/composables/useSpeedData'
+import { useRouter } from 'vue-router'
 import SpeedCard from '@/components/SpeedCard.vue'
 import SpeedChart from '@/components/SpeedChart.vue'
 
+const router = useRouter()
 const { latest, history, loading, refresh, autoRefresh, refreshInterval } = useSpeedData()
 
 const intervals = [
@@ -37,6 +39,7 @@ const intervals = [
         <button class="refresh" @click="refresh" :disabled="loading">
           {{ loading ? '刷新中...' : '刷新' }}
         </button>
+        <button class="settings-btn" @click="router.push('/settings')">设置</button>
       </div>
     </header>
     <SpeedCard
@@ -165,6 +168,20 @@ h1 {
 .refresh:disabled {
   opacity: 0.5;
   cursor: not-allowed;
+}
+
+.settings-btn {
+  padding: 0.5rem 1rem;
+  border: 1px solid var(--color-border);
+  border-radius: 6px;
+  background: var(--color-background-soft);
+  color: var(--color-text);
+  cursor: pointer;
+  font-size: 0.9rem;
+}
+
+.settings-btn:hover {
+  background: var(--color-background-mute);
 }
 
 @media (max-width: 480px) {
