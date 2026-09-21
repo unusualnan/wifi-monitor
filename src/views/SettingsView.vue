@@ -65,7 +65,7 @@ async function save() {
           v-model.number="form.download_threshold_mbps"
           type="number"
           min="0"
-          step="0.1"
+          step="0.01"
         />
         <span class="hint">当前值: {{ form.download_threshold_mbps }} MB/s</span>
       </div>
