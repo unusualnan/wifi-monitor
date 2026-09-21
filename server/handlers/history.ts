@@ -13,7 +13,7 @@ export async function handleHistory(request: Request, env: Env) {
   const since = new Date(Date.now() - hours * 60 * 60 * 1000).toISOString()
 
   const { results } = await env.DB
-    .prepare('SELECT ts, download, upload FROM speed_log WHERE ts >= ? ORDER BY ts ASC')
+    .prepare('SELECT ts, download, upload, device FROM speed_log WHERE ts >= ? ORDER BY ts ASC')
     .bind(since)
     .all<SpeedRecord>()
 

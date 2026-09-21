@@ -1,7 +1,7 @@
 import { json } from 'itty-router'
 
 export async function handleUpload(request: Request, env: Env) {
-  const body = await request.json<{ records?: { ts: string; download: number; upload: number }[] }>()
+  const body = await request.json<{ records?: { ts: string; download: number; upload: number; device: string }[] }>()
 
   if (!body.records || !Array.isArray(body.records)) {
     return json({ ok: false, error: 'missing records' }, { status: 400 })
@@ -11,9 +11,9 @@ export async function handleUpload(request: Request, env: Env) {
     return json({ ok: true, count: 0 })
   }
 
-  const stmt = env.DB.prepare('INSERT INTO speed_log (ts, download, upload) VALUES (?, ?, ?)')
+  const stmt = env.DB.prepare('INSERT INTO speed_log (ts, download, upload, device) VALUES (?, ?, ?, ?)')
   const results = await env.DB.batch(
-    body.records.map((r) => stmt.bind(r.ts, r.download, r.upload)),
+    body.records.map((r) => stmt.bind(r.ts, r.download, r.upload, r.device)),
   )
 
   return json({ ok: true, count: results.length })

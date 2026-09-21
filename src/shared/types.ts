@@ -2,6 +2,7 @@ export interface SpeedRecord {
   ts: string
   download: number
   upload: number
+  device: string
 }
 
 export type LatestSpeed =

@@ -35,19 +35,57 @@ const option = computed(() => {
     }
   }
 
+  const devices = [...new Set(props.records.map((r) => r.device))].sort()
+  const allTimestamps = [...new Set(props.records.map((r) => r.ts))].sort()
+  const timeLabels = allTimestamps.map((ts) =>
+    new Date(ts).toLocaleString('zh-CN', {
+      month: '2-digit',
+      day: '2-digit',
+      hour: '2-digit',
+      minute: '2-digit',
+    }),
+  )
+
+  const deviceRecords = new Map<string, Map<string, { download: number; upload: number }>>()
+  for (const device of devices) {
+    deviceRecords.set(device, new Map())
+  }
+  for (const r of props.records) {
+    deviceRecords.get(r.device)?.set(r.ts, { download: r.download, upload: r.upload })
+  }
+
+  const series: Array<{ name: string; type: string; data: (number | null)[]; smooth: boolean; lineStyle: { width: number } }> = []
+  for (const device of devices) {
+    const tsMap = deviceRecords.get(device)!
+    series.push({
+      name: `${device} 下载`,
+      type: 'line',
+      data: allTimestamps.map((ts) => tsMap.get(ts)?.download ?? null),
+      smooth: true,
+      lineStyle: { width: 2 },
+    })
+    series.push({
+      name: `${device} 上传`,
+      type: 'line',
+      data: allTimestamps.map((ts) => tsMap.get(ts)?.upload ?? null),
+      smooth: true,
+      lineStyle: { width: 2 },
+    })
+  }
+
   return {
     tooltip: {
       trigger: 'axis',
       formatter: (params: Array<{ axisValue: string; seriesName: string; value: number }>) => {
         const time = params[0]?.axisValue ?? ''
-        const lines = params.map(
-          (p) => `${p.seriesName}: ${p.value.toFixed(1)} Mbps`,
-        )
+        const lines = params
+          .filter((p) => p.value != null)
+          .map((p) => `${p.seriesName}: ${p.value.toFixed(1)} Mbps`)
         return `${time}<br/>${lines.join('<br/>')}`
       },
     },
     legend: {
-      data: ['下载', '上传'],
+      data: series.map((s) => s.name),
       top: 0,
     },
     grid: {
@@ -58,14 +96,7 @@ const option = computed(() => {
     },
     xAxis: {
       type: 'category',
-      data: props.records.map((r) =>
-        new Date(r.ts).toLocaleString('zh-CN', {
-          month: '2-digit',
-          day: '2-digit',
-          hour: '2-digit',
-          minute: '2-digit',
-        }),
-      ),
+      data: timeLabels,
       axisLabel: {
         rotate: 30,
         fontSize: 10,
@@ -79,33 +110,18 @@ const option = computed(() => {
     dataZoom: [
       {
         type: 'inside',
-        start: props.records.length > 20 ? Math.max(0, 100 - (20 / props.records.length) * 100) : 0,
+        start: allTimestamps.length > 20 ? Math.max(0, 100 - (20 / allTimestamps.length) * 100) : 0,
         end: 100,
       },
       {
         type: 'slider',
-        start: props.records.length > 20 ? Math.max(0, 100 - (20 / props.records.length) * 100) : 0,
+        start: allTimestamps.length > 20 ? Math.max(0, 100 - (20 / allTimestamps.length) * 100) : 0,
         end: 100,
         height: 20,
         bottom: 0,
       },
     ],
-    series: [
-      {
-        name: '下载',
-        type: 'line',
-        data: props.records.map((r) => r.download),
-        smooth: true,
-        lineStyle: { width: 2 },
-      },
-      {
-        name: '上传',
-        type: 'line',
-        data: props.records.map((r) => r.upload),
-        smooth: true,
-        lineStyle: { width: 2 },
-      },
-    ],
+    series,
   }
 })
 
@@ -113,10 +129,11 @@ watch(
   () => props.records.length,
   () => {
     if (props.autoRefresh && !userZooming.value && chartRef.value) {
+      const timestampCount = new Set(props.records.map((r) => r.ts)).size
       const chart = chartRef.value
       chart.dispatchAction({
         type: 'dataZoom',
-        start: props.records.length > 20 ? Math.max(0, 100 - (20 / props.records.length) * 100) : 0,
+        start: timestampCount > 20 ? Math.max(0, 100 - (20 / timestampCount) * 100) : 0,
         end: 100,
       })
     }

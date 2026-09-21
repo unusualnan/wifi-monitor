@@ -18,7 +18,7 @@ export function useSpeedData() {
       if (data.ts && data.download !== null && data.upload !== null) {
         const exists = history.value.some((r) => r.ts === data.ts)
         if (!exists) {
-          history.value = [...history.value, { ts: data.ts, download: data.download, upload: data.upload }]
+          history.value = [...history.value, { ts: data.ts, download: data.download, upload: data.upload, device: data.device ?? 'unknown' }]
         }
       }
     } catch (e) {
