@@ -80,7 +80,7 @@ const option = computed(() => {
         const time = params[0]?.axisValue ?? ''
         const lines = params
           .filter((p) => p.value != null)
-          .map((p) => `${p.seriesName}: ${p.value.toFixed(1)} Mbps`)
+          .map((p) => `${p.seriesName}: ${p.value.toFixed(2)} Mbps`)
         return `${time}<br/>${lines.join('<br/>')}`
       },
     },

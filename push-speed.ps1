@@ -18,6 +18,7 @@ while ($true) {
                 ts       = $timestamp
                 download = $download
                 upload   = $upload
+                device   = "A"
             }
         )
     } | ConvertTo-Json -Compress
