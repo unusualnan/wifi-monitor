@@ -17,6 +17,7 @@ export async function handlePutSettings(request: Request, env: Env) {
     download_threshold_mbps:
       body.download_threshold_mbps ?? current.download_threshold_mbps,
     poll_interval: body.poll_interval ?? current.poll_interval,
+    push_serverchan: body.push_serverchan ?? current.push_serverchan,
   };
   await env.SETTINGS_KV.put(SETTINGS_KEY, JSON.stringify(updated));
   return json(updated);

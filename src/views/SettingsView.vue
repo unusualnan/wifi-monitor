@@ -10,10 +10,7 @@ const saving = ref(false)
 const error = ref('')
 const success = ref('')
 
-const form = ref<AppSettings>({
-  download_threshold_mbps: DEFAULT_SETTINGS.download_threshold_mbps,
-  poll_interval: DEFAULT_SETTINGS.poll_interval,
-})
+const form = ref<AppSettings>({ ...DEFAULT_SETTINGS })
 
 onMounted(async () => {
   try {
@@ -80,6 +77,15 @@ async function save() {
           step="1"
         />
         <span class="hint">当前值: {{ form.poll_interval }} 秒</span>
+      </div>
+
+      <div class="field">
+        <label for="serverchan">推送 Server酱</label>
+        <label class="toggle">
+          <input id="serverchan" type="checkbox" v-model="form.push_serverchan" />
+          <span class="slider"></span>
+        </label>
+        <span class="hint">当前值: {{ form.push_serverchan ? '开启' : '关闭' }}</span>
       </div>
 
       <div v-if="error" class="message error">{{ error }}</div>
@@ -170,6 +176,48 @@ h1 {
 .hint {
   font-size: 0.8rem;
   opacity: 0.6;
+}
+
+.toggle {
+  position: relative;
+  display: inline-block;
+  width: 36px;
+  height: 20px;
+  cursor: pointer;
+}
+
+.toggle input {
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+.slider {
+  position: absolute;
+  inset: 0;
+  background: var(--color-border);
+  border-radius: 10px;
+  transition: 0.2s;
+}
+
+.slider::before {
+  content: '';
+  position: absolute;
+  width: 16px;
+  height: 16px;
+  left: 2px;
+  bottom: 2px;
+  background: white;
+  border-radius: 50%;
+  transition: 0.2s;
+}
+
+.toggle input:checked + .slider {
+  background: hsla(160, 100%, 37%, 1);
+}
+
+.toggle input:checked + .slider::before {
+  transform: translateX(16px);
 }
 
 .message {
